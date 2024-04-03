@@ -1,1 +1,1 @@
-# OS_Decoration_-InterProcess_-Communication_and_Synchronization
+# OS_Decoration_InterProcess_Communication_and_Synchronization
