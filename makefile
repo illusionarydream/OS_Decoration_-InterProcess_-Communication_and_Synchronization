@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=gnu
+CFLAGS = -Wall -Wextra -std=gnu11
 
 all: file1 file2
 

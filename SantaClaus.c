@@ -21,6 +21,7 @@ int elf_count = 0;
 void *SantaClaus() {
     while (1) {
         sleep(1);
+        sem_wait(&santa);
         if (reindeer_count == 9) {
             printf("Santa Claus is delivering gifts\n");
             sleep(1);
@@ -33,6 +34,7 @@ void *SantaClaus() {
 
             sem_post(&elf);
         }
+        sem_post(&santa_mutex);
     }
 }
 void *Reindeer(void *arg) {
@@ -52,6 +54,8 @@ void *Reindeer(void *arg) {
         reindeer_count++;
         if (reindeer_count == 9) {
             sem_wait(&reindeer_full);
+            sem_wait(&santa_mutex);
+            sem_post(&santa);
         }
 
         sem_post(&reindeer_mutex);
@@ -82,6 +86,8 @@ void *Elf(void *arg) {
         elf_count++;
         if (elf_count == 3) {
             sem_wait(&elf_full);
+            sem_wait(&santa_mutex);
+            sem_post(&santa);
         }
 
         sem_post(&elf_mutex);
