@@ -18,20 +18,36 @@ sem_t elf_mutex;
 int reindeer_count = 0;
 int elf_count = 0;
 
+void PrepareSleigh() {
+    printf("Santa Claus is preparing sleigh\n");
+    sleep(1);
+}
+
+void HelpElves() {
+    printf("Santa Claus is helping elves\n");
+    sleep(1);
+}
+
+void GetHitched(int id) {
+    printf("Reindeer %d is getting hitched\n", id);
+    sleep(1);
+}
+
+void GetHelp(int id) {
+    printf("Elf %d is getting help\n", id);
+    sleep(1);
+}
+
 void *SantaClaus() {
     while (1) {
         sleep(1);
         sem_wait(&santa);
         if (reindeer_count == 9) {
-            printf("Santa Claus is delivering gifts\n");
-            sleep(1);
-
+            PrepareSleigh();
             sem_post(&reindeer);
         }
         if (elf_count == 3) {
-            printf("Santa Claus is helping elves\n");
-            sleep(1);
-
+            HelpElves();
             sem_post(&elf);
         }
         sem_post(&santa_mutex);
@@ -62,6 +78,8 @@ void *Reindeer(void *arg) {
 
         sem_wait(&reindeer);
         reindeer_count--;
+        GetHitched(id);
+        sleep(rand() % 5 + 1);
         if (reindeer_count == 0) {
             sem_post(&reindeer_full);
         } else
@@ -94,6 +112,8 @@ void *Elf(void *arg) {
 
         sem_wait(&elf);
         elf_count--;
+        GetHelp(id);
+        sleep(rand() % 5 + 1);
         if (elf_count == 0) {
             sem_post(&elf_full);
         } else

@@ -21,6 +21,7 @@ void *chef(void *arg) {
         sleep(1);
         sem_post(&rack_is_empty);
     }
+    return NULL;
 }
 
 // 收银员线程
@@ -36,6 +37,7 @@ void *cashier(void *arg) {
         sem_post(&rack_is_full);
         sem_post(&cashier_ready);
     }
+    return NULL;
 }
 
 // 顾客线程
@@ -46,6 +48,7 @@ void *customer(void *arg) {
     sem_post(&customer_ready);
     sleep(1);
     sem_wait(&cashier_ready);
+    return NULL;
 }
 int main(int argc, char *argv[]) {
     // 设置参数
