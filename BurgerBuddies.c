@@ -1,14 +1,31 @@
+// * purpose:
+// * To simulate a burger shop with chefs, cashiers, and customers.
+// * The chefs make burgers and put them on the rack.
+// * The cashiers take orders from customers and give them burgers.
+// * The customers come and get burgers.
+// * The program will end when all customers have got burgers.
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+
+// 设置参数
+int chefs_num = 3;
+int max_burgers = 4;
+int cashier_num = 2;
+int customers_num = 8;
+
+// 计数用于程序的结束
+int shared_cnt = 0;
+
 // 设置信号量
 sem_t chef_order;
 sem_t rack_is_full;
 sem_t rack_is_empty;
 sem_t customer_ready;
 sem_t cashier_ready;
+sem_t exit_mutex;
 
 // 厨师线程
 void *chef(void *arg) {
@@ -48,22 +65,40 @@ void *customer(void *arg) {
     sem_post(&customer_ready);
     sleep(1);
     sem_wait(&cashier_ready);
+    printf("Customer %d gets a burger\n", id);
+    sleep(1);
+    sem_wait(&exit_mutex);
+    shared_cnt++;
+    if (shared_cnt == customers_num) {
+        exit(0);
+    }
+    sem_post(&exit_mutex);
     return NULL;
 }
 int main(int argc, char *argv[]) {
-    // 设置参数
-    int chefs_num = 3;
-    int max_burgers = 4;
-    int cashier_num = 2;
-    int customers_num = 8;
-
     if (argc == 5) {
         chefs_num = atoi(argv[1]);
         max_burgers = atoi(argv[2]);
         cashier_num = atoi(argv[3]);
         customers_num = atoi(argv[4]);
     }
+    if (argc == 4) {
+        chefs_num = atoi(argv[1]);
+        max_burgers = atoi(argv[2]);
+        cashier_num = atoi(argv[3]);
+    }
+    if (argc == 3) {
+        chefs_num = atoi(argv[1]);
+        max_burgers = atoi(argv[2]);
+    }
+    if (argc == 2) {
+        chefs_num = atoi(argv[1]);
+    }
 
+    if (chefs_num < 1 || chefs_num > 20 || max_burgers < 1 || max_burgers > 20 || cashier_num < 1 || cashier_num > 20 || customers_num < 1 || customers_num > 20) {
+        printf("Invalid input\n");
+        return 0;
+    }
     // 进程id
     pthread_t chefs[20];
     pthread_t cashiers[20];
@@ -75,6 +110,7 @@ int main(int argc, char *argv[]) {
     sem_init(&customer_ready, 0, 0);
     sem_init(&cashier_ready, 0, 0);
     sem_init(&chef_order, 0, 1);
+    sem_init(&exit_mutex, 0, 1);
 
     // 创建厨师线程
     for (int i = 0; i < chefs_num; i++) {
@@ -116,5 +152,7 @@ int main(int argc, char *argv[]) {
     sem_destroy(&rack_is_empty);
     sem_destroy(&customer_ready);
     sem_destroy(&cashier_ready);
+    sem_destroy(&chef_order);
+    sem_destroy(&exit_mutex);
     return 0;
 }

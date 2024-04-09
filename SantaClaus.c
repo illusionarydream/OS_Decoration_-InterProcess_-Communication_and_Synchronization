@@ -1,3 +1,10 @@
+// *purpose
+// * To simulate a Santa Claus with reindeer and elves.
+// * The reindeer come back and wait for Santa Claus.
+// * The elves need help and wait for Santa Claus.
+// * Santa Claus will prepare sleigh when 9 reindeer are back.
+// * Santa Claus will help elves when 3 elves need help.
+// * The program will end after 30 times of preparing sleigh or helping elves.
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -39,7 +46,8 @@ void GetHelp(int id) {
 }
 
 void *SantaClaus() {
-    while (1) {
+    int cnt = 0;
+    while (cnt < 30) {
         sleep(1);
         sem_wait(&santa);
         if (reindeer_count == 9) {
@@ -51,7 +59,9 @@ void *SantaClaus() {
             sem_post(&elf);
         }
         sem_post(&santa_mutex);
+        cnt++;
     }
+    exit(0);
 }
 void *Reindeer(void *arg) {
     int id = *(int *)arg;
